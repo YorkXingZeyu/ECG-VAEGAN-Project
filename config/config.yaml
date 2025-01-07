@@ -1,0 +1,41 @@
+# Configuration file for ECG GAN Project
+
+# General Settings
+random_seed: 999
+device: auto  # Options: 'cpu', 'cuda', 'auto'
+
+# Data Settings
+data:
+  path: "data/mitdb/"
+  resample_length: 128
+  test_size: 0.2
+  normal_classes: ['N']
+  abnormal_classes: ['V', 'F', 'S', 'A', 'E', 'R', 'J']
+
+# Training Settings
+training:
+  batch_size: 128
+  num_epochs: 200
+  learning_rate: 0.00001
+  beta1: 0.5
+  ngpu: 1
+  nc: 2
+
+# Model Settings
+model:
+  nz: 50
+  nx: 50
+  ngf: 64
+  ndf: 64
+
+# Optimization Weights
+weights:
+  diversity: 0.01
+  netE: 0.00001
+  confidence: 1
+
+# Evaluation Settings
+evaluation:
+  batch_size: 50
+  z_epochs: 100
+  z_lr: 0.1
