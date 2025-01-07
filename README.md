@@ -11,11 +11,7 @@ This repository contains an implementation of a Generative Adversarial Network (
 - [Usage](#usage)
   - [Training](#training)
   - [Evaluation](#evaluation)
-- [Project Structure](#project-structure)
-- [Outputs](#outputs)
-- [Dependencies](#dependencies)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
+
 
 ## Project Overview
 
