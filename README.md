@@ -256,7 +256,8 @@ pyyaml==6.0
 ## License
 This project is licensed under the MIT License. You are free to use, modify, and distribute this code with proper attribution.
 
-## Acknowledgements
-IT-BIH Dataset: The ECG signals used in this project come from the MIT-BIH Arrhythmia Database.
-PyTorch: The GAN implementation is built using the PyTorch library.
-PhysioNet: Thanks to PhysioNet for providing access to the dataset and resources for ECG signal analysis.
+## Acknowledgements：
+
+1. IT-BIH Dataset:  The ECG signals used in this project come from the MIT-BIH Arrhythmia Database.
+2. PyTorch:  The GAN implementation is built using the PyTorch library.
+3. PhysioNet: Thanks to PhysioNet for providing access to the dataset and resources for ECG signal analysis.
