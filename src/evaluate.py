@@ -1,5 +1,5 @@
 # src/evaluate.py
-
+import numpy as np
 import torch
 import torch.nn as nn
 import yaml
@@ -41,9 +41,9 @@ def main():
     netG2 = Generator2(nx, ngf, nc, ngpu).to(device)
     
     # Load trained model weights
-    netE.load_state_dict(torch.load('outputs/models/netE_final.pth', map_location=device))
-    netG1.load_state_dict(torch.load('outputs/models/netG1_final.pth', map_location=device))
-    netG2.load_state_dict(torch.load('outputs/models/netG2_final.pth', map_location=device))
+    netE.load_state_dict(torch.load('outputs/models/netE_epoch_100.pth', map_location=device))
+    netG1.load_state_dict(torch.load('outputs/models/netG1_epoch_100.pth', map_location=device))
+    netG2.load_state_dict(torch.load('outputs/models/netG2_epoch_100.pth', map_location=device))
     
     netE.eval()
     netG1.eval()
@@ -65,47 +65,45 @@ def main():
     normal_errors = []
     abnormal_errors = []
     
-    for data, labels in zip(test_loader, test_labels):
-        reals = data.to(device)
-        labels = labels.to(device)
-        half_reals = reals[:,:,0:64]
-        target_reals = reals[:,:,64:]
-        b_size = reals.size(0)
-        
-        with torch.no_grad():
-            mu, sigma = netE(half_reals)
-        
-        # Optimize Z
-        z = torch.zeros(b_size, nz, 1, requires_grad=True, device=device)
-        optimizerZ = torch.optim.Adam([z], lr=z_lr)
-        for Zepoch in range(z_epochs):
-            optimizerZ.zero_grad()
-            xz = mu + (z * sigma)
-            half_fakes = netG1(xz)
-            loss = criterion(half_fakes, target_reals)
-            loss.backward()
-            optimizerZ.step()
-        
-        # Phase 3: Update generators and encoder with optimal z
-        z = z.detach()
+    data = test_data
+    labels = test_labels
+    reals = data.to(device)
+    labels = labels.to(device)
+    half_reals = reals[:,:,0:64]
+    target_reals = reals[:,:,64:]
+    b_size = reals.size(0)
+    
+    with torch.no_grad():
+        mu, sigma = netE(half_reals)
+    
+    # Optimize Z
+    z = torch.zeros(b_size, nz, 1, requires_grad=True, device=device)
+    optimizerZ = torch.optim.Adam([z], lr=z_lr)
+    for Zepoch in range(z_epochs):
+        optimizerZ.zero_grad()
         xz = mu + (z * sigma)
         half_fakes = netG1(xz)
-        confidence_est = netG2(xz)
-        residuals = torch.abs(target_reals - half_fakes)
-        
-        # Compute spectral error
-        spectral_error = compute_spectral_error(residuals, confidence_est, W)
-        
-        # Separate errors based on labels
-        for i in range(b_size):
-            if labels[i]:
-                normal_errors.append(spectral_error[i].cpu().item())
-            else:
-                abnormal_errors.append(spectral_error[i].cpu().item())
+        loss = criterion(half_fakes, target_reals)
+        loss.backward()
+        optimizerZ.step()
     
-    # Convert to tensors
-    normal_errors = torch.tensor(normal_errors)
-    abnormal_errors = torch.tensor(abnormal_errors)
+    # Phase 3: Update generators and encoder with optimal z
+    z = z.detach()
+    xz = mu + (z * sigma)
+    half_fakes = netG1(xz)
+    confidence_est = netG2(xz)
+    normal_confidence_maps = confidence_est[labels==True,0,:]
+    abnormal_confidence_maps = confidence_est[labels==False,0,:]
+    normal_residuals = (torch.abs(half_fakes[labels==True,0,:]-target_reals[labels==True,0,:]))
+    abnormal_residuals = (torch.abs(half_fakes[labels==False,0,:]-target_reals[labels==False,0,:]))
+
+    # Compute spectral error
+    normal_errors_spectral = compute_spectral_error(normal_residuals, normal_confidence_maps, W)
+    abnormal_errors_spectral = compute_spectral_error(abnormal_residuals, abnormal_confidence_maps, W)
+    normal_errors = normal_errors_spectral.cpu()  # Replace with other error metrics as needed
+    abnormal_errors = abnormal_errors_spectral.cpu()
+    normal_errors = normal_errors.cpu()
+    abnormal_errors = abnormal_errors.cpu()
     
     # Calculate metrics
     thresholds = np.linspace(0, 1, 10000)
