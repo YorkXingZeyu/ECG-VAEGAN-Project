@@ -32,7 +32,7 @@ Electrocardiogram (ECG) signal analysis is crucial for diagnosing various heart 
 1. **Clone the Repository:**
 
     ```bash
-    git clone https://github.com/yourusername/ecg-gan-project.git
+    git clone https://github.com/YorkXingZeyu/ECG-VAEGAN-Project.git
     cd ecg-gan-project
     ```
 
