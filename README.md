@@ -258,6 +258,6 @@ This project is licensed under the MIT License. You are free to use, modify, and
 
 ## Acknowledgements：
 
-1. IT-BIH Dataset:  The ECG signals used in this project come from the MIT-BIH Arrhythmia Database.
+1. MIT-BIH Dataset:  The ECG signals used in this project come from the MIT-BIH Arrhythmia Database.
 2. PyTorch:  The GAN implementation is built using the PyTorch library.
 3. PhysioNet: Thanks to PhysioNet for providing access to the dataset and resources for ECG signal analysis.
